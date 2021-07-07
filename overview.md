@@ -44,7 +44,9 @@ Highly active people (ICI3D)
 * Access to health care may provide the disease to sustain longer duration, because intervention is yet to reach the infected to reduce the transmission of the disease. This should be considered different from the Highly active group of people, as this highly active people are characterized by their behavior, and their inability to adhere to the protocols of intervention available for the control of the disease, where the people of no access to healthcare are simple carrying the disease because of the lack of facility.
 
 ## Literature and literature review
-Dietz E, Estimation of Heterogeniety - A GLM Approach In : Fahrmeir L, Francis B, Gilchrist R, Tutz G. Advances in GLM and Statistical Modelling. Springer-Verlang, New-York. 1992. pg - 66-70
+1. Dietz E, Estimation of Heterogeniety - A GLM Approach In : Fahrmeir L, Francis B, Gilchrist R, Tutz G. Advances in GLM and Statistical Modelling. Springer-Verlang, New-York. 1992. pg - 66-70
+2. Zhang Y, Li Y, Wang L, Li M, Zhou X. Evaluating transmission heterogeneity and super-spreading event of COVID-19 in a metropolis of China. Int J Environ Res Public Health. 2020;17(10). 
+3. 1. Cori A, Boëlle PY, Thomas G, Leung GM, Valleron AJ. Temporal variability and social heterogeneity in disease transmission: The case of SARS in Hong Kong. PLoS Comput Biol. 2009;5(8). 
 
 ## Examples 
 
