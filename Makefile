@@ -18,6 +18,8 @@ Sources += $(wildcard *.R)
 
 test.Rout: test.R
 
+simGens.Rout: simGens.R
+
 ######################################################################
 
 Sources += $(wildcard *.md)
