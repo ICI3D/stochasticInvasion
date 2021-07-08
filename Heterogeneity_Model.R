@@ -98,7 +98,7 @@ crossing(I = 1,
          R0 = seq(1, 2, 0.5),
          kappa = seq(0.1, 2.25, 0.25),
          rho = seq(0, 1, 0.5),
-         runs = 1000) -> varies
+         runs = 10000) -> varies
 
 results <- varies %>% 
   mutate(row = row_number()) %>% 
@@ -107,6 +107,8 @@ results <- varies %>%
   unnest(data)
 
 
-ggplot(data = results)+ 
+plot <- ggplot(data = results) + 
   geom_line(aes(x = kappa, y = prob)) +
   facet_grid(R0~rho, labeller = label_both)
+
+ggsave("plot.pdf", plot = plot)
