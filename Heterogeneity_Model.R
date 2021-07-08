@@ -88,3 +88,5 @@ results %>%
 results %>% 
   group_by(kappa) %>% 
   summarize(`# Failed to establish` = sum(Infected == 0))
+
+save.image("Heterogeneity_Model.rda")

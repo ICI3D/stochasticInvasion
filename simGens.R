@@ -12,11 +12,23 @@
 
 set.seed(0707)
 
-generation <- function(I, R0, kappa){
-	gshape <- 1/kappa
-	gscale <- R0*kappa
+generation <- function(I, R0, kappa, rho=0){
 	## How infectious is each person?
 	## FIXME: should we have an alternative that works when kappa=0
+
+	## rho measures correlation between susceptibility and transmissiveness
+	## if variation is all in mixing (e.g., ICI3D model, many STI models):
+	## rho should be 1
+	## In the default super-spreader case rho should be zero
+
+	## if rho > 0, the infectious people in our early generations will be more infections
+	## There is a simple theoretical expectation for this:
+
+	## weighting the average of the quantity by the quantity itself ⇒ 1+CV²
+	Rinf <- R0*(1+kappa)^(rho)
+
+	gshape <- 1/kappa
+	gscale <- Rinf*kappa
 	trans <- rgamma(I, shape=gshape, scale=gscale)
 
 	## How many people do they actually infect?
