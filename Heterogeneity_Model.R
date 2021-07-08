@@ -14,12 +14,23 @@
 
 set.seed(0707)
 
-generation <- function(I, R0, kappa){
-  gshape <- 1/kappa
-  gscale <- R0*kappa
-  ## dispersion parameter kappa indicates greater heterogeneity as it increases
+generation <- function(I, R0, kappa, rho=0){
   ## How infectious is each person?
   ## FIXME: should we have an alternative that works when kappa=0
+  
+  ## rho measures correlation between susceptibility and transmissiveness
+  ## if variation is all in mixing (e.g., ICI3D model, many STI models):
+  ## rho should be 1
+  ## In the default super-spreader case rho should be zero
+  
+  ## if rho > 0, the infectious people in our early generations will be more infections
+  ## There is a simple theoretical expectation for this:
+  
+  ## weighting the average of the quantity by the quantity itself ⇒ 1+CV²
+  Rinf <- R0*(1+kappa)^(rho)
+  
+  gshape <- 1/kappa
+  gscale <- Rinf*kappa
   trans <- rgamma(I, shape=gshape, scale=gscale)
   
   ## How many people do they actually infect?
@@ -27,38 +38,41 @@ generation <- function(I, R0, kappa){
   return(sum(inf))
 }
 
+
 generation(10, 4, kappa=0.01)
 
 ## FIXME: does generation() do what we think? What are some good ways to test it?
 
 ## Write a function that calls generation over and over and determines whether a disease "establishes" 
-establish <- function(iStart, R0, kappa, threshold = 10000, max_runs = 100){
+establish <- function(iStart, R0, kappa, rho=0, threshold = 10000, max_runs = 100){
   
   I <- iStart
   n <- 1
   vecI <- c(I)
-  ## Threshold of 100 cases (might be too low?)
+ 
   while (I < threshold & I != 0 & n < max_runs){
-  I <- generation(I, R0, kappa)
+  I <- generation(I, R0, kappa, rho)
   vecI <- c(vecI, I)
   n <- n+1
   }
  ## FIXME: Put this in a while() loop and get it to run until we do or don't figure out whether disease has established.
-  return(vecI)
+  ifelse(I == 0, return(TRUE), return(FALSE))
 }
 
-Y <- establish(1, 4, 0.01, 1000)
+establish(10, 4, 0.01)
 
-plot(1:length(Y),               # Generations
-     Y,                  # Number infected (I) on the y axis
-     xlab = "Generations",     # Label the x axis
-     ylab = "Number infected",  # Label the y axis
-     main = "Heterogeneity Model",    # Plot title
-     xlim = c(0,10),           #
-     ylim = c(0, 100),
-     type = "l",                # Use a line plot
-     bty = "n")  
+simulate <- function(num_sim, iStart, R0, kappa, rho=0){
+  
+  vecS <- c()
+  for (i in 1:num_sim) {
+    
+    S <- establish(iStart, R0, kappa, rho)
+    vecS <- c(vecS, S)
+  }
+  return(vecS)
+}
 
+simulate(10, 1, 2, 0.01)  
 ## How are we going to define establishment?
 ## What's a good practical definition (avoid running forever!)
 ## What arguments does this function need?
