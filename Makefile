@@ -18,8 +18,6 @@ Sources += $(wildcard *.R)
 
 test.Rout: test.R
 
-simGens.Rout: simGens.R
-
 Heterogeneity_Model.Rout: Heterogeneity_Model.R
 
 ######################################################################
