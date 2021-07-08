@@ -44,13 +44,13 @@ generation(10, 4, kappa=0.01)
 ## FIXME: does generation() do what we think? What are some good ways to test it?
 
 ## Write a function that calls generation over and over and determines whether a disease "establishes" 
-establish <- function(iStart, R0, kappa, rho=0, threshold = 10000, max_runs = 100){
+establish <- function(iStart, R0, kappa, rho=0, threshold = 10000, max_generations = 100){
   
   I <- iStart
   n <- 1
   vecI <- c(I)
  
-  while (I < threshold & I != 0 & n < max_runs){
+  while (I < threshold & I != 0 & n < max_generations){
   I <- generation(I, R0, kappa, rho)
   vecI <- c(vecI, I)
   n <- n+1
@@ -69,32 +69,45 @@ simulate <- function(num_sim, iStart, R0, kappa, rho=0){
     S <- establish(iStart, R0, kappa, rho)
     vecS <- c(vecS, S)
   }
-  return(vecS)
+  
+  prob <- sum(vecS)/length(vecS)
+  return(prob)
 }
 
-simulate(10, 1, 2, 0.01)  
+simulate(1000, 1, 2, 0.01)  
 ## How are we going to define establishment?
 ## What's a good practical definition (avoid running forever!)
 ## What arguments does this function need?
 
+
+prbs <- function(variables) {
+  
+}
+
+
+
 library(tidyverse)
 
 crossing(I = 1, 
-         R0 = seq(1, 11, 2),
-         kappa = seq(0.1, 4.1, 0.5)) -> varies
+         R0 = seq(1, 2, 0.5),
+         kappa = seq(0, 2, 0.05)) -> varies
 
 results <- varies %>% 
   mutate(row = row_number()) %>% 
   nest(data = c(I, R0, kappa)) %>% 
-  mutate(Infected = map(data, ~ establish(.$I, .$R0, .$kappa))) %>% 
-  unnest(c(data, Infected)) %>% 
+  mutate(prob = as.numeric(map(data, ~ simulate(1000, .$I, .$R0, .$kappa))))%>% 
+  unnest(data) %>% 
+  
+
+%>% 
   group_by(row) %>% 
   mutate(Generation = row_number()) %>%
   mutate_at(c("R0", "kappa"), as.factor) 
 
 
 ggplot(data = results)+ 
-  geom_line(aes(x = Generation, y = Infected, col = R0, linetype = kappa))
+  geom_line(aes(x = kappa, y = prob)) +
+  facet_grid(vars(R0))
 
 
 results %>% 
