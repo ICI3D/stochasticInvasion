@@ -34,12 +34,23 @@ generation <- function(I, R0, kappa, rho=0){
   trans <- rgamma(I, shape=gshape, scale=gscale)
   
   ## How many people do they actually infect?
+  
   inf <- rpois(I, trans)
-  return(sum(inf))
+  # inf0 <- rpois(I, trans0)
+  
+  # browser()
+  
+  if(kappa != 0) {
+    result <- inf
+  } else {
+    result <- rep(1, I)
+  }
+  
+  return(sum(result))
 }
 
 
-generation(10, 4, kappa=0.01)
+generation(3, 4, kappa=0.1)
 
 ## FIXME: does generation() do what we think? What are some good ways to test it?
 
@@ -49,14 +60,14 @@ establish <- function(iStart, R0, kappa, rho=0, threshold = 10000, max_generatio
   I <- iStart
   n <- 1
   vecI <- c(I)
- 
+  
   while (I < threshold & I != 0 & n < max_generations){
-  I <- generation(I, R0, kappa, rho)
-  vecI <- c(vecI, I)
-  n <- n+1
+    I <- generation(I, R0, kappa, rho)
+    vecI <- c(vecI, I)
+    n <- n+1
   }
- ## FIXME: Put this in a while() loop and get it to run until we do or don't figure out whether disease has established.
-  ifelse(I == 0, return(TRUE), return(FALSE))
+  ## FIXME: Put this in a while() loop and get it to run until we do or don't figure out whether disease has established.
+  ifelse(I == 0, return(FALSE), return(TRUE))
 }
 
 establish(10, 4, 0.01)
@@ -80,40 +91,22 @@ simulate(1000, 1, 2, 0.01)
 ## What arguments does this function need?
 
 
-prbs <- function(variables) {
-  
-}
 
 library(tidyverse)
 
 crossing(I = 1, 
-         R0 = seq(1.25, 1.75, 0.5),
-         kappa = seq(0, 2, 0.5)) -> varies
+         R0 = seq(1, 2, 0.5),
+         kappa = seq(0.1, 2.25, 0.25),
+         rho = seq(0, 1, 0.5),
+         runs = 1000) -> varies
 
 results <- varies %>% 
   mutate(row = row_number()) %>% 
-  nest(data = c(I, R0, kappa)) %>% 
-  mutate(prob = as.numeric(map(data, ~ simulate(1000, .$I, .$R0, .$kappa))))%>% 
-  unnest(data) %>% 
+  nest(data = c(runs, I, R0, kappa, rho)) %>% 
+  mutate(prob = as.numeric(map(data, ~ simulate(.$runs, .$I, .$R0, .$kappa, .$rho)))) %>% 
+  unnest(data)
 
-  group_by(row) %>% 
-  mutate(Generation = row_number()) %>%
-  mutate_at(c("R0", "kappa"), as.factor) 
-
-print(results)
 
 ggplot(data = results)+ 
   geom_line(aes(x = kappa, y = prob)) +
-  facet_grid(vars(R0))
-
-quit()
-
-results %>% 
-  group_by(R0) %>% 
-  summarize(`# Failed to establish` = sum(Infected == 0))
-
-results %>% 
-  group_by(kappa) %>% 
-  summarize(`# Failed to establish` = sum(Infected == 0))
-
-save.image("Heterogeneity_Model.rda")
+  facet_grid(R0~rho, labeller = label_both)
