@@ -1,4 +1,6 @@
 
+## FIXME: Get rid of the FIXME things that have been fixed ☺
+
 ## Simulate a disease spreading generation by generation
 ## Ignore:
 #### Time (just count generations)
