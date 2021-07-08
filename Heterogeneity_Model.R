@@ -7,8 +7,8 @@
 #### ICI3D perspective (we're just going to use the Lloyd-Smith perspective)
 ## Assume: process does not change through time
 
-## LS say (correctly) that a simple ODE model corresponds to an exponential distribution of infectiousness: this is because recovery is modeled as a random [constant ?? × exponentially distributed Duration]
-## kappa is CV² (unitless and equal to 1/a, where a is a standard shape parameter)
+## LS say (correctly) that a simple ODE model corresponds to an exponential distribution of infectiousness: this is because recovery is modeled as a random [constant ?? ? exponentially distributed Duration]
+## kappa is CV? (unitless and equal to 1/a, where a is a standard shape parameter)
 
 set.seed(0707)
 
@@ -30,22 +30,22 @@ generation(10, 4, kappa=0.01)
 ## FIXME: does generation() do what we think? What are some good ways to test it?
 
 ## Write a function that calls generation over and over and determines whether a disease "establishes" 
-establish <- function(iStart, R0, kappa){
+establish <- function(iStart, R0, kappa, threshold = 10000, max_runs = 100){
   
   I <- iStart
   n <- 1
   vecI <- c(I)
   ## Threshold of 100 cases (might be too low?)
-  while (I < 100 & I != 0 & n <10){
+  while (I < threshold & I != 0 & n < max_runs){
   I <- generation(I, R0, kappa)
-  vecI <- append(vecI, I, after=n)
+  vecI <- c(vecI, I)
   n <- n+1
   }
  ## FIXME: Put this in a while() loop and get it to run until we do or don't figure out whether disease has established.
   return(vecI)
 }
 
-Y <- establish(1, 4, 0.01)
+Y <- establish(1, 4, 0.01, 1000)
 
 plot(1:length(Y),               # Generations
      Y,                  # Number infected (I) on the y axis
@@ -60,3 +60,22 @@ plot(1:length(Y),               # Generations
 ## How are we going to define establishment?
 ## What's a good practical definition (avoid running forever!)
 ## What arguments does this function need?
+
+library(tidyverse)
+
+crossing(I = 1, 
+         R0 = seq(1, 11, 2),
+         kappa = seq(0.1, 4.1, 0.5)) -> varies
+
+results <- varies %>% 
+  mutate(row = row_number()) %>% 
+  nest(data = c(I, R0, kappa)) %>% 
+  mutate(Infected = map(data, ~ establish(.$I, .$R0, .$kappa))) %>% 
+  unnest(c(data, Infected)) %>% 
+  group_by(row) %>% 
+  mutate(Generation = row_number()) %>%
+  mutate_at(c("R0", "kappa"), as.factor) 
+
+
+ggplot(data = results)+ 
+  geom_line(aes(x = Generation, y = Infected, col = R0, linetype = kappa))
