@@ -84,31 +84,29 @@ prbs <- function(variables) {
   
 }
 
-
-
 library(tidyverse)
 
 crossing(I = 1, 
-         R0 = seq(1, 2, 0.5),
-         kappa = seq(0, 2, 0.05)) -> varies
+         R0 = seq(1.25, 1.75, 0.5),
+         kappa = seq(0, 2, 0.5)) -> varies
 
 results <- varies %>% 
   mutate(row = row_number()) %>% 
   nest(data = c(I, R0, kappa)) %>% 
   mutate(prob = as.numeric(map(data, ~ simulate(1000, .$I, .$R0, .$kappa))))%>% 
   unnest(data) %>% 
-  
 
-%>% 
   group_by(row) %>% 
   mutate(Generation = row_number()) %>%
   mutate_at(c("R0", "kappa"), as.factor) 
 
+print(results)
 
 ggplot(data = results)+ 
   geom_line(aes(x = kappa, y = prob)) +
   facet_grid(vars(R0))
 
+quit()
 
 results %>% 
   group_by(R0) %>% 
