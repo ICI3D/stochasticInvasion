@@ -79,3 +79,12 @@ results <- varies %>%
 
 ggplot(data = results)+ 
   geom_line(aes(x = Generation, y = Infected, col = R0, linetype = kappa))
+
+
+results %>% 
+  group_by(R0) %>% 
+  summarize(`# Failed to establish` = sum(Infected == 0))
+
+results %>% 
+  group_by(kappa) %>% 
+  summarize(`# Failed to establish` = sum(Infected == 0))
