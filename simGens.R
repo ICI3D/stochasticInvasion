@@ -41,13 +41,26 @@ generation(10, 4, kappa=0.01)
 ## FIXME: does generation() do what we think? What are some good ways to test it?
 
 ## Write a function that calls generation over and over and determines whether a disease "establishes" 
-establish <- function(iStart, R0, kappa, ...){
+establish <- function(iStart, R0, kappa, rho=0){
 	I <- iStart
-	I <- generation(I, R0, kappa)
+	I <- generation(I, R0, kappa, rho)
 	## FIXME: Put this in a while() loop and get it to run until we do or don't figure out whether disease has established.
-	return(TRUE)
+	ifelse(I == 0, return(TRUE), return(FALSE))
 }
 
+
+simulate <- function(num_sim, iStart, R0, kappa, rho=0){
+  
+  vecS <- c()
+  for (i in 1:num_sim) {
+    
+    S <- establish(iStart, R0, kappa, rho)
+    vecS <- c(vecS, S)
+  }
+  return(vecS)
+}
+
+simulate(10, 1, 2, 0.01)  
 ## How are we going to define establishment?
 ## What's a good practical definition (avoid running forever!)
 ## What arguments does this function need?
